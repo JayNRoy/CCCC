@@ -12,12 +12,12 @@
     </p>
 </div>
 <div>
-    <form action="/chat" method="post">
-    <label for="language">Language Preference:</label>
+    <form action="/match" method="post">
+    <label for="person">Language Preference:</label>
         {% for acc in people %}
-        <input type="radio" id="{% acc[0] %}" name="{% acc[1] %}" value="{% acc[1] %}" checked>
+        <input type="radio" id="{{ acc[0] }}" name="person" value="{% acc[1] %}" checked>
         {% endfor %}
+        <button class="btn btn-primary" type="submit">Chat!</button>
     </form>
 </div>
-
 {% endblock %}

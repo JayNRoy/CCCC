@@ -13,7 +13,7 @@ from flask import Flask, flash, redirect, render_template, request, session, url
 from tempfile import mkdtemp
 from flask_session import Session
 from functools import wraps
-from assistingFunctions import login_required
+from assistingFunctions import *
 from flask_socketio import SocketIO
 
 
@@ -50,7 +50,6 @@ def login():
         if not password:
             flash("Please enter a password")
             return redirect("/login")
-        print(username, password)
         verification = verify_user(username, password, cursor)
         if verification == db.SUCCESS:
             flash("Welcome back " + username + "!")
@@ -84,12 +83,26 @@ def register():
             return redirect("/register")
         email = request.form.get("email")
         prefs = request.form.get("myTags")
-        lang = request.form.get
-        
+        lang = request.form.get("language")
+        # Add user to the db
+        session["username"] = username
     else:
         return render_template("signup.html")
 
-@app.route("/logout")
+@app.route("/match", method=["GET", "POST"])
+@login_required
+def match():
+    if request.method == "POST":
+        target = request.form.get("person")
+        # DB search to find the language of the person queried.
+        language = ""
+        return redirect("/chat")
+    else:
+        # DB search for all online people with similar interests to user.
+        people = []
+        return render_template("matches.html", people=people )
+
+@app.route("/logout", method=["GET"])
 @login_required
 def logout():
     """ Log user out """
