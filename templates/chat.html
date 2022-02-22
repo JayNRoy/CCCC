@@ -1,0 +1,55 @@
+{% extends "layout.html" %}
+
+{% block title %}
+    Chatting
+{% endblock %}
+
+{% block main %}
+    <div class="chatbox">
+        <br>
+        Your conversation:
+        <br>
+        <textarea id="currentConvo" name="currentConvo" cols="100"></textarea>
+        </textarea>
+    </div>
+    <br>
+    <label for="newMessage">Input your message:</label>
+    <!-- <form action="/sendMessage" method="post">
+        <div>
+            <textarea style="resize:none" id="newMessage" name="newMessage" rows="4" cols="50" autofocus placeholder="Enter your message here...">
+            </textarea>
+        </div>
+        <button class="btn btn-success" type="submit" id="btn-msg">Send</button>
+    </form> -->
+    <div action="/sendMessage" method="post">
+        <div>
+            <textarea style="resize:none" id="newMessage" name="newMessage" rows="4" cols="50" autofocus placeholder="Enter your message here...">
+            </textarea>
+        </div>
+        <button class="btn btn-success" type="submit" id="btn-msg">Send</button>
+    </div>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.4.1/socket.io.js"></script>
+    <script>
+    server_url = "http://127.0.0.1:5000/"
+    console.log("asjdjksabdjkb")
+    const socket = io.connect(server_url);
+
+    socket.on("connect", function () {
+        socket.emit('join_chat')
+    });
+
+    socket.on('msg_from_serv', function (json) {
+        console.log(json)
+        var chatbox = document.getElementById("currentConvo");
+        chatbox.value += json.text + "\n"
+    })
+
+    var btn = document.getElementById("btn-msg");
+    btn.addEventListener("click", function() {
+        console.log("button clicked")
+        var msg_txt = document.getElementById("newMessage").value
+        document.getElementById("newMessage").value = ""
+        socket.emit('msg_sent', {"msg_txt" : msg_txt})
+    })
+    </script>
+{% endblock %}

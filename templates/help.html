@@ -1,0 +1,48 @@
+{% extends "layout.html" %}
+
+{% block title %}
+    Help and Settings
+    <style>
+        .bounds
+        {
+            display: inline-block;
+        }
+    </style>
+{% endblock %}
+
+{% block main %}
+<h2>Help</h2>
+<div name="help" style="border: 10px;">
+    <p>
+        Let's say you want to expand your social circle and find other people that share the same passion as you do.
+        <br>
+        Well you've come to the right place! CCCC is a website you can use to connect with other people across the globe that share similar passions to you!
+        <br>
+        Let's say you love sports and so does a potential best-friend that lives halfway-around the globe. There are a lot of boundaries that may come in-between you meeting this friend. 
+        <br>
+        CCCC aims to break those barriers by allowing you to communicate with anyone no matter what language either of you speak. CCCC is able to translate your messages from your own language to your partner's native tongue on the fly!
+        <br>
+        CCCC believes that this will break barriers between people everywhere across the globe, uniting people together in ways never seen before.
+        <br>
+        Get started by creating an account and telling CCCC what you're interested. We'll match you with people that want to talk to you!
+    </p>
+</div>
+<h2>Settings</h2>
+<div name="settings">
+    <form action="/ammendTags" method="post">
+        <label for="tags"><h5>My tags:</h5>Please ensure you seperate your attributes by commas (no spaces).</label>
+        <div>
+            <textarea style="resize:none" id="myTags" name="myTags" rows="5" cols="50">
+            </textarea>
+        </div>
+            <label for="language">Language Preference:</label>
+            <select name="language" id="language">
+                <option value="English">English</option>
+                <option value="French">French</option>
+                <option value="Spanish">Spanish</option>
+                <option value="Russian">Russian</option>
+            </select>
+        <button class="btn btn-success" type="submit">Save</button>
+    </form>
+</div>
+{% endblock %}

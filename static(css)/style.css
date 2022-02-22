@@ -1,0 +1,32 @@
+h1 {
+    color: green;
+    font-weight: 500px;
+}
+main {
+    background-image: url("/static(css)/background.jpeg");
+    margin-bottom: 200%;
+}
+.chatbox {
+    border:50px solid #ccc;;
+    overflow:scroll;
+}
+
+/* Scrollbar styles designed by WebKit*/
+::-webkit-scrollbar {
+    width: 12px;
+    height: 12px;
+    }
+    
+    ::-webkit-scrollbar-track {
+    border: 1px solid rgb(50, 205, 58);
+    border-radius: 10px;
+    }
+    
+    ::-webkit-scrollbar-thumb {
+    background: rgb(50, 205, 58);  
+    border-radius: 10px;
+    }
+    
+    ::-webkit-scrollbar-thumb:hover {
+    background: rgb(50, 205, 58);  
+    }

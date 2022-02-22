@@ -1,0 +1,35 @@
+{% extends "layout.html" %}
+
+{% block title %}
+    Sign Up
+{% endblock %}
+
+{% block main %}
+<h2>Sign Up</h2>
+<form action="/signup" method="post">
+    <div class="form-group">
+        <input autocomplete="off" autofocus class="form-control" name="username" placeholder="Username" type="text">
+    </div>
+    <div class="form-group">
+        <input class="form-control" name="email" placeholder="Enter Email" type="text">
+    </div>
+    <div class="form-group">
+        <input class="form-control" name="password" placeholder="Password" type="password">
+    </div>
+    <div class="form-group">
+        <input class="form-control" name="confirmation" placeholder="Confirm Password" type="password">
+    </div>
+    <label for="tags"><h5>My tags:</h5>Please ensure you seperate your attributes by commas (no spaces).</label>
+    <div>
+        <textarea style="resize:none" id="myTags" name="myTags" rows="5" cols="50"></textarea>
+    </div>
+    <label for="language">Language Preference:</label>
+        <select name="language" id="language">
+            <option value="English">English</option>
+            <option value="French">French</option>
+            <option value="Spanish">Spanish</option>
+            <option value="Russian">Russian</option>
+        </select>
+    <button class="btn btn-primary" type="submit">Register</button>
+</form>
+{% endblock %}
