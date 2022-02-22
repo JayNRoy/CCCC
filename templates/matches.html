@@ -1,0 +1,23 @@
+{% extends "layout.html" %}
+
+{% block title %}
+    My Matches
+{% endblock %}
+
+{% block main %}
+<h2>Change Password</h2>
+<div>
+    <p>
+        Here are some people currently online that have similar interests to you! Who would you like to chat with?
+    </p>
+</div>
+<div>
+    <form action="/chat" method="post">
+    <label for="language">Language Preference:</label>
+        {% for acc in people %}
+        <input type="radio" id="{% acc[0] %}" name="{% acc[1] %}" value="{% acc[1] %}" checked>
+        {% endfor %}
+    </form>
+</div>
+
+{% endblock %}

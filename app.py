@@ -1,5 +1,5 @@
 """
-the server
+Server-side functionality
 """
 
 # our code
