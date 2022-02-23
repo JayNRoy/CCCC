@@ -1,5 +1,14 @@
 from flask import redirect, render_template, request, session
 from functools import wraps
+from googletrans import Translator
+
+translator = Translator()
+
+# no enum type ):
+LANGID_ENG, LANGID_FR, LANGID_GER = 0, 1, 2
+
+def translate_txt(txt, srclang, destlang):
+    return translator.translate(txt, src=srclang, dest=destlang)
 
 # Assisting Functions - decorated functions
 def login_required(f):

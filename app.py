@@ -5,7 +5,6 @@ Server-side functionality
 # our code
 import database as db
 from database import verify_user, errmsg_from_code
-import translation as tl
 
 # third party
 import sqlite3
@@ -89,7 +88,7 @@ def register():
     else:
         return render_template("signup.html")
 
-@app.route("/match", method=["GET", "POST"])
+@app.route("/match", methods=["GET", "POST"])
 @login_required
 def match():
     if request.method == "POST":
@@ -102,7 +101,7 @@ def match():
         people = []
         return render_template("matches.html", people=people )
 
-@app.route("/logout", method=["GET"])
+@app.route("/logout", methods=["GET"])
 @login_required
 def logout():
     """ Log user out """
