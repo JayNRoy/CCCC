@@ -41,6 +41,7 @@ def index():
 def login():
     session.clear()
     if request.method == "POST":
+        # A series of checks to ensure the user has the correct login details.
         username = request.form.get("username")
         if not username:
             flash("Please enter a correct username")
@@ -99,7 +100,7 @@ def match():
     else:
         # DB search for all online people with similar interests to user.
         people = []
-        return render_template("matches.html", people=people )
+        return render_template("matches.html", people=people)
 
 @app.route("/logout", methods=["GET"])
 @login_required
@@ -115,7 +116,8 @@ def on_client_connect():
     
 @sio.on('msg_sent')
 def on_msg_sent(json):
-    txt = json['msg_txt']
+    msg = json['msg_txt']
+    txt = translateThis(msg, "fr").text
     sio.emit('msg_from_serv', {'text': txt})
 
 if __name__ == "__main__":

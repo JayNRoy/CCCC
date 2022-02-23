@@ -7,7 +7,7 @@ translator = Translator()
 # no enum type ):
 LANGID_ENG, LANGID_FR, LANGID_GER = 0, 1, 2
 
-def translate_txt(txt, srclang, destlang):
+def translateThis(txt, destlang, srclang="en"):
     return translator.translate(txt, src=srclang, dest=destlang)
 
 # Assisting Functions - decorated functions
