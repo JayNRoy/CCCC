@@ -31,7 +31,6 @@ app.config["SESSION_FILE_DIR"] = mkdtemp()
 app.config["SESSION_PERMANENT"] = False
 app.config["SESSION_TYPE"] = "filesystem"
 app.secret_key = b'P\x87\xfc\xa9\xe6qQ~)8\x90D\x11\n\xb9\xa1'
-Session(app)
 
 @app.route("/", methods=["GET","POST"])
 @login_required
@@ -89,7 +88,7 @@ def register():
     else:
         return render_template("signup.html")
 
-@app.route("/match", method=["GET", "POST"])
+@app.route("/match", methods=["GET", "POST"])
 @login_required
 def match():
     if request.method == "POST":
@@ -102,7 +101,7 @@ def match():
         people = []
         return render_template("matches.html", people=people )
 
-@app.route("/logout", method=["GET"])
+@app.route("/logout", methods=["GET"])
 @login_required
 def logout():
     """ Log user out """
