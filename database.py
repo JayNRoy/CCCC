@@ -139,7 +139,7 @@ def verify_user(name, password, cursor):
         """, [name])
         for row in cursor:
             real_password = row[0]
-            print(f"password was {real_password}")
+            print("password was " + str(real_password))
         if password == real_password:
             print("found")
             return SUCCESS

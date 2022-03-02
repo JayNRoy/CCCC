@@ -2,7 +2,7 @@ pip3 install flask_session
 pip install googletrans==4.0.0-rc1
 
 start the server:
-flask run
+flask run or python ./app.py
 ./ngrok http 5000
 
 Make sure your vscode is python 3.8.8
