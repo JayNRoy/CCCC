@@ -68,6 +68,15 @@ def login():
 def chat():
     return render_template("chat.html")
 
+@app.route("/match", methods=["GET", "POST"])
+@login_required
+def helpSettings():
+    if request.method == "POST":
+        flash("Changes saved!")
+        return redirect("/chat")
+    else:
+        return render_template("matches.html")
+
 @app.route("/helpSettings", methods=["GET", "POST"])
 @login_required
 def helpSettings():
@@ -106,6 +115,7 @@ def register():
         lang = request.form.get("language")
         # Add user to the db
         session["username"] = username
+        return redirect("/")
     else:
         return render_template("signup.html")
 
