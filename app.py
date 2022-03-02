@@ -67,6 +67,26 @@ def login():
 def chat():
     return render_template("chat.html")
 
+@app.route("/helpSettings", methods=["GET", "POST"])
+@login_required
+def helpSettings():
+    if request.method == "POST":
+        flash("Changes saved!")
+        return redirect("/")
+    else:
+        return render_template("help.html")
+
+@app.route("/changePassword", methods=["GET", "POST"])
+@login_required
+def changePassword():
+    if request.method == "POST":
+        password = request.form.get("password")
+        confirm = request.form.get("confirmation")
+        flash("Changes saved!")
+        return redirect("/")
+    else:
+        return render_template("changePassword.html")
+
 @app.route("/register", methods=["GET", "POST"])
 def register():
     session.clear()
