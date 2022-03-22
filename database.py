@@ -3,8 +3,8 @@ from collections import namedtuple
 import sqlite3
 from sys import prefix
 
-db = sqlite3.connect("database.db")
-cursor = db.cursor()
+datab = sqlite3.connect("database.db")
+cursor = datab.cursor()
 
 def create_tables(cursor):
     cursor.execute("""
@@ -15,7 +15,7 @@ def create_tables(cursor):
             LANGUAGEID INTEGER,
             EMAIL TEXT);
     """)
-    db.commit()
+    datab.commit()
 
     cursor.execute("""
     CREATE TABLE IF NOT EXISTS M
@@ -24,7 +24,7 @@ def create_tables(cursor):
             MESSAGE TEXT,
             NUMBER INTEGER PRIMARY KEY AUTOINCREMENT);
     """)
-    db.commit()
+    datab.commit()
 
 
 class user:
@@ -41,7 +41,7 @@ def add_user(Name, Pass, Pref, Langid, Email, cursor):
     cursor.execute("""
         SELECT NAME FROM US where NAME = ?
     """, [Name])
-    db.commit()
+    datab.commit()
     # if there is an entry already we don't do anything
     for row in cursor:
         # if the name exists, check the password
@@ -50,7 +50,7 @@ def add_user(Name, Pass, Pref, Langid, Email, cursor):
         cursor.execute("""
         INSERT INTO US (NAME, PASSWORD, PREFERENCES, LANGUAGEID, EMAIL) VALUES(?, ?, ?, ?, ?)
         """, [Name, Pass, Pref, Langid, Email]) 
-        db.commit() 
+        datab.commit() 
     else:
         return "user already exists"
 
@@ -60,7 +60,7 @@ def add_message(user1, user2, text, cursor):
     cursor.execute("""
     INSERT INTO M (SENDER, RECEIVER, MESSAGE) VALUES(?, ?, ?)
     """, [user1, user2, text])
-    db.commit()
+    datab.commit()
 
 def get_user(name, cursor):
     cursor.execute("""

@@ -5,6 +5,7 @@ Server-side functionality
 # our code
 import database as db
 from database import verify_user, errmsg_from_code
+import time
 
 # third party
 import sqlite3
