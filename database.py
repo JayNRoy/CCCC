@@ -9,7 +9,8 @@ cursor = datab.cursor()
 def create_tables(cursor):
     cursor.execute("""
     CREATE TABLE IF NOT EXISTS US
-            (NAME TEXT,
+            (USERID INTEGER PRIMARY KEY AUTOINCREMENT,
+            NAME TEXT,
             PASSWORD TEXT,
             PREFERENCES TEXT,
             LANGUAGEID INTEGER,
@@ -19,12 +20,21 @@ def create_tables(cursor):
 
     cursor.execute("""
     CREATE TABLE IF NOT EXISTS M
-            (SENDER TEXT,
+            (NUMBER INTEGER PRIMARY KEY AUTOINCREMENT,
+            SENDER TEXT,
             RECEIVER TEXT,
-            MESSAGE TEXT,
-            NUMBER INTEGER PRIMARY KEY AUTOINCREMENT);
+            MESSAGE TEXT
+            LANGUAGEFROM INTEGER);
     """)
     datab.commit()
+
+    cursor.execute("""
+    CREATE TABLE IF NOT EXISTS LANGUAGES
+            (LANGUAGEID INTEGER PRIMARY KEY AUTOINCREMENT,
+            NAME TEXT,
+            LANGCODE TEXT
+            UNIQUE(NAME, LANGCODE));
+    """)
 
 
 class user:

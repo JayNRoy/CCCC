@@ -5,9 +5,9 @@ Server-side functionality
 # our code
 import database as db
 from database import verify_user, errmsg_from_code
-import time
 
 # third party
+import time
 import sqlite3
 from flask import Flask, flash, redirect, render_template, request, session, url_for
 from tempfile import mkdtemp
