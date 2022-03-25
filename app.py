@@ -22,8 +22,8 @@ cursor = con.cursor()
 db.create_tables(cursor)
 
 # add stock users
-db.add_user("jack wright", "pass", "none", 0, "jackwright@gmail.com", cursor)
-db.add_user("jack wrong", "pass", "none", 0, "jackwrong@gmail.com", cursor)
+# db.add_user("jack wright", "pass", "none", 0, "jackwright@gmail.com", cursor)
+# db.add_user("jack wrong", "pass", "none", 0, "jackwrong@gmail.com", cursor)
 
 app = Flask(__name__)
 sio = SocketIO(app)

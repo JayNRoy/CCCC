@@ -89,7 +89,8 @@ def get_user(name, cursor):
     cursor.execute("""
         SELECT * FROM US where NAME = ?
     """, [name])
-    #result = ""
+    # All fields in the record can be returned as they are, with the exception of prefernces.
+    # The data within this attribute should be treated like a mini csv.
     for row in cursor:
         newusr = user(row[0], row[1], row[2], row[3], row[4])
         return newusr
