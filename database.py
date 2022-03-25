@@ -7,7 +7,8 @@ datab = sqlite3.connect("database.db")
 cursor = datab.cursor()
 
 def create_tables(cursor):
-    cursor.execute("""
+    try:
+        cursor.execute("""
     CREATE TABLE IF NOT EXISTS US
             (USERID INTEGER PRIMARY KEY AUTOINCREMENT,
             NAME TEXT,
@@ -16,26 +17,38 @@ def create_tables(cursor):
             LANGUAGEID INTEGER,
             EMAIL TEXT);
     """)
-    datab.commit()
+        datab.commit()
 
-    cursor.execute("""
+        cursor.execute("""
     CREATE TABLE IF NOT EXISTS M
             (NUMBER INTEGER PRIMARY KEY AUTOINCREMENT,
             SENDER TEXT,
             RECEIVER TEXT,
-            MESSAGE TEXT
+            MESSAGE TEXT,
             LANGUAGEFROM INTEGER);
     """)
-    datab.commit()
+        datab.commit()
 
-    cursor.execute("""
-    CREATE TABLE IF NOT EXISTS LANGUAGES
+        cursor.execute("""
+    CREATE TABLE IF NOT EXISTS LANG
             (LANGUAGEID INTEGER PRIMARY KEY AUTOINCREMENT,
             NAME TEXT,
-            LANGCODE TEXT
+            LANGCODE TEXT,
             UNIQUE(NAME, LANGCODE));
     """)
+        datab.commit()
+        return True
+    except:
+        return False
 
+def recallDB(cursor):
+    query = """SELECT * FROM """
+    result = []
+    for table in ["US", "M", "LANG"]:
+        cursor.execute(query + table)
+        datab.commit()
+        result.append([table, cursor.fetchall()])
+    return result
 
 class user:
     def __init__(self, name, password, pref, langid, email):
