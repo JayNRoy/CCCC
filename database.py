@@ -5,10 +5,11 @@ from sys import prefix
 
 datab = sqlite3.connect("database.db")
 def openData():
+    # A repeatable command each function can use to open and close the database connection at will.
     cursor = datab.cursor()
     return cursor
 
-def create_tables(cursor):
+def create_tables():
     cursor = openData()
     try:
         cursor.execute("""
@@ -45,7 +46,7 @@ def create_tables(cursor):
     except:
         return False
 
-def recallDB(cursor):
+def recallDB():
     cursor = openData()
     query = """SELECT * FROM """
     result = []
@@ -53,7 +54,7 @@ def recallDB(cursor):
         cursor.execute(query + table)
         datab.commit()
         result.append([table, cursor.fetchall()])
-        cursor.close()
+    cursor.close()
     return result
 
 class user:
@@ -65,7 +66,7 @@ class user:
         self.email = email
         self.all = [self.name, self.Pass, self.langid, self.email]
 
-def add_user(Name, Pass, Pref, Langid, Email, cursor):
+def add_user(Name, Pass, Pref, Langid, Email):
     cursor = openData()
     exist_name = ""
     cursor.execute("""
@@ -88,7 +89,7 @@ def add_user(Name, Pass, Pref, Langid, Email, cursor):
 
 #add_user(234, "Olivia", "olivia", "45456", "@olivia.com")   
 
-def add_message(user1, user2, text, cursor):
+def add_message(user1, user2, text):
     cursor = openData()
     cursor.execute("""
     INSERT INTO M (SENDER, RECEIVER, MESSAGE) VALUES(?, ?, ?)
@@ -96,7 +97,7 @@ def add_message(user1, user2, text, cursor):
     datab.commit()
     cursor.close()
 
-def get_user(name, cursor):
+def get_user(name):
     cursor = openData()
     cursor.execute("""
         SELECT * FROM US where NAME = ?
@@ -108,7 +109,7 @@ def get_user(name, cursor):
         return newusr
     cursor.close()
 
-def get_message(user1, user2, cursor):
+def get_message(user1, user2):
     cursor = openData()
     cursor.execute(""" 
     SELECT NUMBER FROM M where (SENDER,RECEIVER) = (?, ?) 
@@ -153,7 +154,7 @@ def errmsg_from_code(code):
     elif code == ERR_WRONGPASS:
         return "Incorrect password"
 
-def verify_user(name, password, cursor):
+def verify_user(name, password):
     cursor = openData()
     print("verify")
     real_password = ""
