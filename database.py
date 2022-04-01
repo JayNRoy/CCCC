@@ -37,10 +37,14 @@ def create_tables():
     CREATE TABLE IF NOT EXISTS LANG
             (LANGUAGEID INTEGER PRIMARY KEY AUTOINCREMENT,
             NAME TEXT,
-            LANGCODE TEXT,
-            UNIQUE(NAME, LANGCODE));
+            LANGCODE TEXT);
     """)
         datab.commit()
+        cursor.execute("""
+    IF NOT EXISTS (
+        SELECT * FROM LANG
+    )
+        """)
         cursor.close()
         return True
     except:
@@ -95,6 +99,14 @@ def add_message(user1, user2, text):
     INSERT INTO M (SENDER, RECEIVER, MESSAGE) VALUES(?, ?, ?)
     """, [user1, user2, text])
     datab.commit()
+    cursor.close()
+
+def add_lang(name, code):
+    cursor = openData()
+    cursor.execute("""
+    INSERT INTO LANG (NAME, LANGCODE) VALUES(?, ?)
+    """, [name, code])
+    datab.commit
     cursor.close()
 
 def get_user(name):
