@@ -40,11 +40,6 @@ def create_tables():
             LANGCODE TEXT);
     """)
         datab.commit()
-        cursor.execute("""
-    IF NOT EXISTS (
-        SELECT * FROM LANG
-    )
-        """)
         cursor.close()
         return True
     except:
