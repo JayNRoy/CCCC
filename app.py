@@ -8,6 +8,7 @@ from database import verify_user, errmsg_from_code
 import translation as tl
 
 # third party
+import time
 import sqlite3
 from flask import Flask, flash, redirect, render_template, request, session, url_for
 from tempfile import mkdtemp
@@ -22,8 +23,8 @@ cursor = con.cursor()
 db.create_tables(cursor)
 
 # add stock users
-db.add_user("jack wright", "pass", "none", 0, "jackwright@gmail.com", cursor)
-db.add_user("jack wrong", "pass", "none", 0, "jackwrong@gmail.com", cursor)
+# db.add_user("jack wright", "pass", "none", 0, "jackwright@gmail.com", cursor)
+# db.add_user("jack wrong", "pass", "none", 0, "jackwrong@gmail.com", cursor)
 
 app = Flask(__name__)
 sio = SocketIO(app)
@@ -67,6 +68,15 @@ def login():
 def chat():
     return render_template("chat.html")
 
+@app.route("/match", methods=["GET", "POST"])
+@login_required
+def helpSettings():
+    if request.method == "POST":
+        flash("Changes saved!")
+        return redirect("/chat")
+    else:
+        return render_template("matches.html")
+
 @app.route("/helpSettings", methods=["GET", "POST"])
 @login_required
 def helpSettings():
@@ -105,6 +115,7 @@ def register():
         lang = request.form.get("language")
         # Add user to the db
         session["username"] = username
+        return redirect("/")
     else:
         return render_template("signup.html")
 

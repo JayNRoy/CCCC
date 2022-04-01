@@ -3,29 +3,58 @@ from collections import namedtuple
 import sqlite3
 from sys import prefix
 
-db = sqlite3.connect("database.db")
-cursor = db.cursor()
+datab = sqlite3.connect("database.db")
+def openData():
+    # A repeatable command each function can use to open and close the database connection at will.
+    cursor = datab.cursor()
+    return cursor
 
-def create_tables(cursor):
-    cursor.execute("""
+def create_tables():
+    cursor = openData()
+    try:
+        cursor.execute("""
     CREATE TABLE IF NOT EXISTS US
-            (NAME TEXT,
+            (USERID INTEGER PRIMARY KEY AUTOINCREMENT,
+            NAME TEXT,
             PASSWORD TEXT,
             PREFERENCES TEXT,
             LANGUAGEID INTEGER,
             EMAIL TEXT);
     """)
-    db.commit()
+        datab.commit()
 
-    cursor.execute("""
+        cursor.execute("""
     CREATE TABLE IF NOT EXISTS M
-            (SENDER TEXT,
+            (NUMBER INTEGER PRIMARY KEY AUTOINCREMENT,
+            SENDER TEXT,
             RECEIVER TEXT,
             MESSAGE TEXT,
-            NUMBER INTEGER PRIMARY KEY AUTOINCREMENT);
+            LANGUAGEFROM INTEGER);
     """)
-    db.commit()
+        datab.commit()
 
+        cursor.execute("""
+    CREATE TABLE IF NOT EXISTS LANG
+            (LANGUAGEID INTEGER PRIMARY KEY AUTOINCREMENT,
+            NAME TEXT,
+            LANGCODE TEXT);
+    """)
+        datab.commit()
+        cursor.close()
+        return True
+    except:
+        return False
+
+def recallDB():
+    cursor = openData()
+    query = """SELECT * FROM """
+    result = []
+    for table in ["US", "M", "LANG"]:
+        cursor.execute(query + table)
+        datab.commit()
+        result.append([table, cursor.fetchall()])
+    cursor.close()
+    return result
 
 class user:
     def __init__(self, name, password, pref, langid, email):
@@ -36,12 +65,13 @@ class user:
         self.email = email
         self.all = [self.name, self.Pass, self.langid, self.email]
 
-def add_user(Name, Pass, Pref, Langid, Email, cursor):
+def add_user(Name, Pass, Pref, Langid, Email):
+    cursor = openData()
     exist_name = ""
     cursor.execute("""
         SELECT NAME FROM US where NAME = ?
     """, [Name])
-    db.commit()
+    datab.commit()
     # if there is an entry already we don't do anything
     for row in cursor:
         # if the name exists, check the password
@@ -50,34 +80,49 @@ def add_user(Name, Pass, Pref, Langid, Email, cursor):
         cursor.execute("""
         INSERT INTO US (NAME, PASSWORD, PREFERENCES, LANGUAGEID, EMAIL) VALUES(?, ?, ?, ?, ?)
         """, [Name, Pass, Pref, Langid, Email]) 
-        db.commit() 
+        datab.commit()
+        cursor.close()
+        return "user added"
     else:
         return "user already exists"
 
 #add_user(234, "Olivia", "olivia", "45456", "@olivia.com")   
 
-def add_message(user1, user2, text, cursor):
+def add_message(user1, user2, text):
+    cursor = openData()
     cursor.execute("""
     INSERT INTO M (SENDER, RECEIVER, MESSAGE) VALUES(?, ?, ?)
     """, [user1, user2, text])
-    db.commit()
+    datab.commit()
+    cursor.close()
 
-def get_user(name, cursor):
+def add_lang(name, code):
+    cursor = openData()
+    cursor.execute("""
+    INSERT INTO LANG (NAME, LANGCODE) VALUES(?, ?)
+    """, [name, code])
+    datab.commit
+    cursor.close()
+
+def get_user(name):
+    cursor = openData()
     cursor.execute("""
         SELECT * FROM US where NAME = ?
     """, [name])
-    #result = ""
+    # All fields in the record can be returned as they are, with the exception of prefernces.
+    # The data within this attribute should be treated like a mini csv.
     for row in cursor:
         newusr = user(row[0], row[1], row[2], row[3], row[4])
         return newusr
+    cursor.close()
 
-def get_message(user1, user2, cursor):
+def get_message(user1, user2):
+    cursor = openData()
     cursor.execute(""" 
     SELECT NUMBER FROM M where (SENDER,RECEIVER) = (?, ?) 
     """, [user1, user2])
     result = []
     
-
     for row in cursor:
         result.append(row)
 
@@ -103,6 +148,7 @@ def get_message(user1, user2, cursor):
            conversation.append(row)
 
     print(conversation)
+    cursor.close()
 
 
 
@@ -115,7 +161,8 @@ def errmsg_from_code(code):
     elif code == ERR_WRONGPASS:
         return "Incorrect password"
 
-def verify_user(name, password, cursor):
+def verify_user(name, password):
+    cursor = openData()
     print("verify")
     real_password = ""
     exist_name = ""
@@ -132,6 +179,7 @@ def verify_user(name, password, cursor):
         print("exist = ", exist_name)
     if exist_name == "":
         print("Not a username")
+        cursor.close()
         return ERR_NOUSR
     else:
         cursor.execute("""
@@ -142,8 +190,10 @@ def verify_user(name, password, cursor):
             print("password was " + str(real_password))
         if password == real_password:
             print("found")
+            cursor.close()
             return SUCCESS
         else:
+            cursor.close()
             return ERR_WRONGPASS
     
         
