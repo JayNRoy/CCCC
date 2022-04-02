@@ -1,3 +1,4 @@
+from database import recallDB
 import database as db
 import sqlite3
 
@@ -29,4 +30,4 @@ for i in langs:
     db.add_lang(i[0], i[1]) """
 
 langu = db.load_lang()
-
+# print(db.recallDB())

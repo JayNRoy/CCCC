@@ -19,7 +19,7 @@ from flask_socketio import SocketIO
 
 con = sqlite3.connect("database.db", check_same_thread=False)
 cursor = con.cursor()
-db.create_tables(cursor)
+# db.create_tables()
 
 # add stock users
 # db.add_user("jack wright", "pass", "none", 0, "jackwright@gmail.com", cursor)
