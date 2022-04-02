@@ -3,7 +3,7 @@ from collections import namedtuple
 import sqlite3
 from sys import prefix
 
-datab = sqlite3.connect("database.db")
+datab = sqlite3.connect("database.db", check_same_thread=False)
 def openData():
     # A repeatable command each function can use to open and close the database connection at will.
     cursor = datab.cursor()
@@ -176,7 +176,6 @@ def errmsg_from_code(code):
 
 def verify_user(name, password):
     cursor = openData()
-    print("verify")
     real_password = ""
     exist_name = ""
     cursor.execute("""
@@ -184,7 +183,6 @@ def verify_user(name, password):
     """, [name])
     #print(name)
     r=cursor.fetchall()
-    print(r,"cur")
     for row in r:
         print(row)
         # if the name exists, check the password
