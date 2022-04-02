@@ -104,6 +104,19 @@ def add_lang(name, code):
     datab.commit
     cursor.close()
 
+def load_lang():
+    """A function to load all supported languages to allow them to be chosen by preference by the user."""
+    cursor = openData()
+    res = []
+    cursor.execute("""
+        SELECT * FROM LANG
+    """)
+    datab.commit()
+    for row in cursor:
+        res.append(row)
+    cursor.close()
+    return res
+
 def get_user(name):
     cursor = openData()
     cursor.execute("""
