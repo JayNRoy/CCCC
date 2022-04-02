@@ -17,9 +17,6 @@ from functools import wraps
 from assistingFunctions import *
 from flask_socketio import SocketIO
 
-
-con = sqlite3.connect("database.db", check_same_thread=False)
-cursor = con.cursor()
 # db.create_tables()
 
 # add stock users
@@ -45,18 +42,21 @@ def login():
         username = request.form.get("username")
         if not username:
             flash("Please enter a correct username")
+            print("Incorrect username")
             return redirect("/login")
         password = request.form.get("password")
         if not password:
             flash("Please enter a password")
+            print("blank password")
             return redirect("/login")
-        verification = verify_user(username, password, cursor)
+        verification = verify_user(username, password)
         if verification == db.SUCCESS:
             flash("Welcome back " + username + "!")
             session["username"] = username
             return redirect("/")
         elif verification == db.ERR_NOUSR:
             flash("Username " + username + " is invalid")
+            print("Username " + username + " is invalid")
             return redirect("/login")
         else:
             flash("Password was incorrect")
@@ -74,15 +74,6 @@ def helpSettings():
     if request.method == "POST":
         flash("Changes saved!")
         return redirect("/chat")
-    else:
-        return render_template("matches.html")
-
-@app.route("/helpSettings", methods=["GET", "POST"])
-@login_required
-def helpSettings():
-    if request.method == "POST":
-        flash("Changes saved!")
-        return redirect("/")
     else:
         return render_template("help.html")
 
