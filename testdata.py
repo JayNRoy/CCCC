@@ -28,5 +28,5 @@ for i in langs:
 """ for i in languages:
     db.add_lang(i[0], i[1]) """
 
-print(db.recallDB())
+langu = db.load_lang()
 
