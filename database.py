@@ -49,7 +49,7 @@ def recallDB():
     cursor = openData()
     query = """SELECT * FROM """
     result = []
-    for table in ["US", "M", "LANG"]:
+    for table in ["US", "M"]:
         cursor.execute(query + table)
         datab.commit()
         result.append([table, cursor.fetchall()])

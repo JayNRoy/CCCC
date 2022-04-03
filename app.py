@@ -68,7 +68,7 @@ def login():
 def chat():
     return render_template("chat.html")
 
-@app.route("/match", methods=["GET", "POST"])
+@app.route("/helpSettings", methods=["GET", "POST"])
 @login_required
 def helpSettings():
     if request.method == "POST":
@@ -91,6 +91,7 @@ def changePassword():
 @app.route("/register", methods=["GET", "POST"])
 def register():
     session.clear()
+    langs = db.load_lang()
     if request.method == "POST":
         username = request.form.get("username")
         if not username:
@@ -104,11 +105,19 @@ def register():
         email = request.form.get("email")
         prefs = request.form.get("myTags")
         lang = request.form.get("language")
+        for i in langs:
+            if  lang == i[1]:
+                lang = i[0]
+                break
+        db.add_user(username, password, prefs, lang, email)
         # Add user to the db
         session["username"] = username
         return redirect("/")
     else:
-        return render_template("signup.html")
+        langus = []
+        for i in langs:
+            langus.append(i[1])
+        return render_template("signup.html", languages=langus)
 
 @app.route("/match", methods=["GET", "POST"])
 @login_required
