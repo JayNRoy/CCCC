@@ -6,7 +6,7 @@
 
 {% block main %}
 <h2>Sign Up</h2>
-<form action="/signup" method="post">
+<form action="/register" method="post">
     <div class="form-group">
         <input autocomplete="off" autofocus class="form-control" name="username" placeholder="Username" type="text">
     </div>
@@ -25,10 +25,9 @@
     </div>
     <label for="language">Language Preference:</label>
         <select name="language" id="language">
-            <option value="English">English</option>
-            <option value="French">French</option>
-            <option value="Spanish">Spanish</option>
-            <option value="Russian">Russian</option>
+            {% for lang in languages %}
+                <option value="{{ lang }}">{{ lang }}</option>
+            {% endfor %}
         </select>
     <button class="btn btn-primary" type="submit">Register</button>
 </form>
