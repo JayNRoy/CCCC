@@ -101,7 +101,7 @@ def add_lang(name, code):
     cursor.execute("""
     INSERT INTO LANG (NAME, LANGCODE) VALUES(?, ?)
     """, [name, code])
-    datab.commit
+    datab.commit()
     cursor.close()
 
 def load_lang():
@@ -125,8 +125,19 @@ def get_user(name):
     # All fields in the record can be returned as they are, with the exception of prefernces.
     # The data within this attribute should be treated like a mini csv.
     for row in cursor:
-        newusr = user(row[0], row[1], row[2], row[3], row[4])
-        return newusr
+        newusr = [row[0], row[1], row[2], row[3], row[4]]
+    cursor.close()
+    return newusr
+
+def change_password(newPassword):
+    username = get_user[0]
+    cursor = openData()
+    cursor.execute("""
+        UPDATE US
+        SET PASSWORD = (?)
+        WHERE NAME = (?);
+    """, [newPassword, username])
+    datab.commit()
     cursor.close()
 
 def get_message(user1, user2):
