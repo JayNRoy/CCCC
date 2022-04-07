@@ -15,7 +15,7 @@ from tempfile import mkdtemp
 from flask_session import Session
 from functools import wraps
 from assistingFunctions import *
-from flask_socketio import SocketIO
+from flask_socketio import SocketIO, join_room, leave_room
 
 # db.create_tables()
 
@@ -66,7 +66,7 @@ def login():
 
 @app.route("/chat", methods=["GET", "POST"])
 def chat():
-    return render_template("chat.html")
+    return render_template("chat.html", username = session.get("username", None), recipient = "testUser")
 
 @app.route("/helpSettings", methods=["GET", "POST"])
 @login_required
@@ -140,9 +140,11 @@ def logout():
     session.clear()
     return redirect("/login")
 
-@sio.on('connect')
-def on_client_connect():
+@sio.on('join_chat')
+def on_client_connect(data):
+    join_room(data["roomName"])
     print("client connected")
+    sio.emit("online_announcement", data, room = data["roomName"])
     
 @sio.on('msg_sent')
 def on_msg_sent(json):
@@ -150,4 +152,5 @@ def on_msg_sent(json):
     sio.emit('msg_from_serv', {'text': txt})
 
 if __name__ == "__main__":
-    app.run(port=5000)
+    #app.run(port=5000)
+    sio.run(app)

@@ -7,7 +7,7 @@
 {% block main %}
     <div class="chatbox">
         <br>
-        Your conversation:
+        Your conversation with {{ recipient }}:
         <br>
         <textarea id="currentConvo" name="currentConvo" cols="100" rows="25" readonly></textarea>
         </textarea>
@@ -31,15 +31,26 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.4.1/socket.io.js"></script>
     <script>
     server_url = "http://127.0.0.1:5000/"
-    console.log("asjdjksabdjkb")
+    
     const socket = io.connect(server_url);
 
     socket.on("connect", function () {
-        socket.emit('join_chat')
+        console.log("it has started the connection sequence")
+        let chatRecipient = "{{ recipient }}";
+        let currentUsername = "{{ username }}";
+
+        let roomArray = [chatRecipient, currentUsername].sort();
+
+        let room = `${roomArray[0]}&&${roomArray[1]}`
+        console.log(`the room name is ${room}`)
+        socket.emit('join_chat', {"roomName" : room, "username" : currentUsername})
     });
 
+    socket.on("online_announcement", function(data) {
+        alert(`The user ${data["username"]} is ONLINE`)
+    })
+
     socket.on('msg_from_serv', function (json) {
-        console.log(json)
         var chatbox = document.getElementById("currentConvo");
         chatbox.value += json.text + "\n"
     })
