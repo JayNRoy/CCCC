@@ -129,8 +129,8 @@ def get_user(name):
     cursor.close()
     return newusr
 
-def change_password(newPassword):
-    username = get_user[0]
+def change_password(newPassword, username):
+    username = get_user(username)[0]
     cursor = openData()
     cursor.execute("""
         UPDATE US

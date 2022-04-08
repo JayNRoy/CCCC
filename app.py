@@ -84,8 +84,15 @@ def changePassword():
     if request.method == "POST":
         password = request.form.get("password")
         confirm = request.form.get("confirmation")
-        flash("Changes saved!")
-        return redirect("/")
+        same = password == confirm
+        print(same)
+        if same == True:
+            db.change_password(password, session["username"])
+            flash("Changes saved!")
+            return redirect("/")
+        else:
+            flash("Pleas ensure the password match.")
+            return redirect("/changePassword")
     else:
         return render_template("changePassword.html")
 
