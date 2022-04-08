@@ -5,6 +5,7 @@ Server-side functionality
 # our code
 import database as db
 from database import verify_user, errmsg_from_code
+import translation as tl
 
 # third party
 import time
@@ -28,7 +29,6 @@ app.config["SESSION_FILE_DIR"] = mkdtemp()
 app.config["SESSION_PERMANENT"] = False
 app.config["SESSION_TYPE"] = "filesystem"
 app.secret_key = b'P\x87\xfc\xa9\xe6qQ~)8\x90D\x11\n\xb9\xa1'
-Session(app)
 
 @app.route("/", methods=["GET","POST"])
 @login_required
@@ -39,7 +39,6 @@ def index():
 def login():
     session.clear()
     if request.method == "POST":
-        # A series of checks to ensure the user has the correct login details.
         username = request.form.get("username")
         if not username:
             flash("Please enter a correct username")
@@ -138,7 +137,7 @@ def match():
     else:
         # DB search for all online people with similar interests to user.
         people = []
-        return render_template("matches.html", people=people)
+        return render_template("matches.html", people=people )
 
 @app.route("/logout", methods=["GET"])
 @login_required
@@ -154,8 +153,7 @@ def on_client_connect():
     
 @sio.on('msg_sent')
 def on_msg_sent(json):
-    msg = json['msg_txt']
-    txt = translateThis(msg, "fr").text
+    txt = json['msg_txt']
     sio.emit('msg_from_serv', {'text': txt})
 
 if __name__ == "__main__":
