@@ -13,11 +13,24 @@
 </div>
 <div>
     <form action="/match" method="post">
-    <label for="person">Language Preference:</label>
-        {% for acc in people %}
-        <input type="radio" id="{{ acc[0] }}" name="person" value="{% acc[1] %}" checked>
-        {% endfor %}
-        <button class="btn btn-primary" type="submit">Chat!</button>
+    <label for="person">User select:</label>
+    <table class="table">
+        <thead>
+            <tr>
+                <th>Username</th>
+                <th>Common Interests</th>
+                <th>Select User</th>
+            </tr>
+            {% for acc in people %}
+                <tr>
+                    <td>{{ acc[0] }}</td>
+                    <td>{{ acc[1] }}</td>
+                    <td><input type="radio" id="{{ acc[0] }}" name="person" value="{{ acc[0] }}"></td>
+                </tr>
+            {% endfor %}
+        </thead>
+    </table>
+    <button class="btn btn-primary" type="submit">Chat!</button>
     </form>
 </div>
 {% endblock %}

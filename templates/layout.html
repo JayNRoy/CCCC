@@ -20,7 +20,7 @@
             		<div class="collapse navbar-collapse" id="navbar">
                 		{% if session.username %}
                     		<ul class="navbar-nav ml-auto mt-2">
-                                <li class="nav-item"><a class="nav-link" href="/match" style="font-weight: bold">New Chat</a></li>
+                                <li class="nav-item"><a class="nav-link" href="/match" style="font-weight: bold">Chat</a></li>
 						        <li class="nav-item"><a class="nav-link" href="/helpSettings">Help and Settings</a></li>
                         	    <li class="nav-item"><a class="nav-link" href="/changePassword">Change Password</a></li>
                         	    <li class="nav-item"><a class="nav-link" href="/logout">Log Out</a></li>
@@ -36,13 +36,13 @@
 		<!-- Flashed messages -->
 		<div>
 			<h1>CCCC: Connecting Countries via Continental Chat</h1>
-			{% if get_flashed_messages() != None %}
+			<div>
             	{% for message in get_flashed_messages() %}
-            	<div class="alert alert-success" role="alert">
+            		<div class="alert alert-success" role="alert">
             	 		{{ message }}
-            	</div>
+            		</div>
         		{% endfor %}
-			{% endif %}
+			</div>
         </div>
 		<!-- Main content for any page inheriting this page template. -->
 		<main>
