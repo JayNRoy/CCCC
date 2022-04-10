@@ -33,6 +33,8 @@ app.secret_key = b'P\x87\xfc\xa9\xe6qQ~)8\x90D\x11\n\xb9\xa1'
 @app.route("/", methods=["GET","POST"])
 @login_required
 def index():
+    if session["username"] == "" or session["username"] == None:
+        return redirect("/login")
     return render_template("home.html")
 
 @app.route("/login", methods=["GET", "POST"])
@@ -71,11 +73,30 @@ def chat():
 @app.route("/helpSettings", methods=["GET", "POST"])
 @login_required
 def helpSettings():
+    langs = db.load_lang()
+    user = db.get_user(session["username"])
     if request.method == "POST":
-        flash("Changes saved!")
-        return redirect("/chat")
+        data = ["", ""]
+        tags = request.form.get("myTags")
+        language = request.form.get("language")
+        if language != "":
+            for i in langs:
+                if i[1] == language:
+                    data[0] = i[0]
+        if tags != "":
+            data[1] = tags
+        db.updateUser(data, user[0])
+        return redirect("/")
     else:
-        return render_template("help.html")
+        langCode = user[3]
+        default = ""
+        tags = user[2]
+        langus = []
+        for i in langs:
+            langus.append(i[1])
+            if i[0] == langCode:
+                default = i[1]
+        return render_template("help.html", tags=tags, languages=langus, default=default)
 
 @app.route("/changePassword", methods=["GET", "POST"])
 @login_required

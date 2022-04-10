@@ -86,6 +86,32 @@ def add_user(Name, Pass, Pref, Langid, Email):
     else:
         return "user already exists"
 
+def removeUser(name):
+    cursor = openData()
+    cursor.execute("""
+        DELETE FROM US WHERE name = (?)
+    """, [name])
+    datab.commit()
+    cursor.close()
+
+def updateUser(data, name):
+    """fields can be either LANGUAGEID or PREFERENCES"""
+    cursor = openData()
+    if data[0] != "":
+        cursor.execute("""
+            UPDATE US
+            SET LANGUAGEID = (?)
+            WHERE NAME = (?);
+        """, [str(data[0]), name])
+    if data[1] != "":
+        cursor.execute("""
+            UPDATE US
+            SET PREFERENCES = (?)
+            WHERE NAME = (?);
+        """, [data[1], name])
+    datab.commit()
+    cursor.close()
+
 #add_user(234, "Olivia", "olivia", "45456", "@olivia.com")   
 
 def add_message(user1, user2, text):
@@ -198,7 +224,6 @@ def verify_user(name, password):
         print(row)
         # if the name exists, check the password
         exist_name = row
-        print("exist = ", exist_name)
     if exist_name == "":
         print("Not a username")
         cursor.close()
@@ -209,7 +234,6 @@ def verify_user(name, password):
         """, [name])
         for row in cursor:
             real_password = row[0]
-            print("password was " + str(real_password))
         if password == real_password:
             print("found")
             cursor.close()
