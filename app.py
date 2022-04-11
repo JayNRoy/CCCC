@@ -3,6 +3,7 @@ Server-side functionality
 """
 
 # our code
+from webbrowser import get
 import database as db
 from database import verify_user, errmsg_from_code
 import translation as tl
@@ -157,7 +158,14 @@ def match():
         return redirect("/chat")
     else:
         # DB search for all online people with similar interests to user.
-        people = [["danishboi", "metal,games", "English"]]
+        userTags = db.get_user(session['username'])[2]
+        possible = db.findCommonUsers(userTags)
+        for i in possible:
+            if i[1][0] == " ":
+                print(i[1])
+                i[1] = i[1][1:]
+            i[2] = db.find_lang(i[2])[0]
+        people = possible
         return render_template("matches.html", people=people )
 
 @app.route("/logout", methods=["GET"])
