@@ -175,7 +175,6 @@ def match():
             if i[0] == session['username']:
                 self = possible.index(i)
             if i[1][0] == " ":
-                print(i[1])
                 i[1] = i[1][1:]
             i[2] = db.find_lang(i[2])[0]
             i[1] = i[1].capitalize()
