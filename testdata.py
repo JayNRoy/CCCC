@@ -31,3 +31,4 @@ for i in langs:
 
 langu = db.load_lang()
 print(db.recallDB())
+print(db.findCommonUsers("games,destiny2"))

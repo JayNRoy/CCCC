@@ -143,6 +143,29 @@ def load_lang():
     cursor.close()
     return res
 
+def findCommonUsers(interests):
+    # interests is a string of words seperated by commas
+    cursor = openData()
+    users = []
+    pref = interests.split(",")
+    for i in pref:
+        field = "%" + i + "%"
+        cursor.execute("""
+            SELECT * FROM US WHERE PREFERENCES LIKE (?);
+        """, [field])
+        datab.commit
+        for row in cursor:
+            found = False
+            for record in users:
+                if len(users) > 0:
+                    if row[0] in record:
+                        found = True
+            if found == False:
+                users.append([row[0], i])
+    cursor.close()
+    # returns the users matched and how they were matched
+    return users
+
 def get_user(name):
     cursor = openData()
     cursor.execute("""
