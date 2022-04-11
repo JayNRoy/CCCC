@@ -9,14 +9,13 @@ from database import verify_user, errmsg_from_code
 import translation as tl
 
 # third party
-import time
-import sqlite3
 from flask import Flask, flash, redirect, render_template, request, session, url_for
 from tempfile import mkdtemp
 from flask_session import Session
 from functools import wraps
 from assistingFunctions import *
-from flask_socketio import SocketIO
+from flask_socketio import SocketIO, emit
+
 
 # db.create_tables()
 
@@ -35,12 +34,13 @@ app.secret_key = b'P\x87\xfc\xa9\xe6qQ~)8\x90D\x11\n\xb9\xa1'
 @login_required
 def index():
     if session["username"] == "" or session["username"] == None:
+        session.clear()
         return redirect("/login")
+    print(session.items())
     return render_template("home.html")
 
 @app.route("/login", methods=["GET", "POST"])
 def login():
-    session.clear()
     if request.method == "POST":
         username = request.form.get("username")
         if not username:
@@ -56,6 +56,10 @@ def login():
         if verification == db.SUCCESS:
             flash("Welcome back " + username + "!")
             session["username"] = username
+            usrInfo = db.get_user(session["username"])
+            lang = usrInfo[3]
+            langCode = db.find_lang(lang)
+            session["localLang"] = langCode[1]
             return redirect("/")
         elif verification == db.ERR_NOUSR:
             flash("Username " + username + " is invalid")
@@ -87,6 +91,8 @@ def helpSettings():
         if tags != "":
             data[1] = tags
         db.updateUser(data, user[0])
+        langCode = db.find_lang(language)
+        session["localLang"] = langCode[1]
         return redirect("/")
     else:
         langCode = user[3]
@@ -141,6 +147,8 @@ def register():
         db.add_user(username, password, prefs, lang, email)
         # Add user to the db
         session["username"] = username
+        langCode = db.find_lang(lang)
+        session["localLang"] = langCode[1]
         return redirect("/")
     else:
         langus = []
@@ -154,17 +162,25 @@ def match():
     if request.method == "POST":
         target = request.form.get("person")
         # DB search to find the language of the person queried.
-        language = ""
+        target = db.get_user(target)
+        session['endUser'] = target[0]
+        session['endLang'] = target[3]
         return redirect("/chat")
     else:
         # DB search for all online people with similar interests to user.
         userTags = db.get_user(session['username'])[2]
         possible = db.findCommonUsers(userTags)
+        self = -1
         for i in possible:
+            if i[0] == session['username']:
+                self = possible.index(i)
             if i[1][0] == " ":
                 print(i[1])
                 i[1] = i[1][1:]
             i[2] = db.find_lang(i[2])[0]
+            i[1] = i[1].capitalize()
+        if self >= 0:
+            possible.remove(possible[self])
         people = possible
         return render_template("matches.html", people=people )
 
@@ -185,5 +201,11 @@ def on_msg_sent(json):
     txt = json['msg_txt']
     sio.emit('msg_from_serv', {'text': txt})
 
+@sio.on('disconnect')
+def disconnectUser():
+    session.clear()
+    return redirect("/login")
+
 if __name__ == "__main__":
+    session.clear()
     app.run(port=5000)

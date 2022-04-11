@@ -32,4 +32,4 @@ for i in langs:
 langu = db.load_lang()
 # print(langu)
 print(db.recallDB())
-# print(db.find_lang(31))
+print(db.find_lang(31))

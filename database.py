@@ -134,9 +134,15 @@ def find_lang(langCode):
     # finds a language from its language code
     cursor = openData()
     res = ""
-    cursor.execute("""
-        SELECT NAME, LANGCODE FROM LANG WHERE LANGUAGEID = (?);
-    """, [str(langCode)])
+    # If langCode is a string, the language name has been given, otherwise its the code.
+    if type(langCode) == str:
+        cursor.execute("""
+            SELECT LANGUAGEID, LANGCODE FROM LANG WHERE NAME = (?);
+        """, [langCode])
+    else:
+        cursor.execute("""
+            SELECT NAME, LANGCODE FROM LANG WHERE LANGUAGEID = (?);
+        """, [str(langCode)])
     datab.commit()
     for row in cursor:
         res = [row[0], row[1]]
