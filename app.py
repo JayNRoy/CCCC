@@ -12,6 +12,7 @@ import translation as tl
 from flask import Flask, flash, redirect, render_template, request, session, url_for
 from tempfile import mkdtemp
 from flask_session import Session
+from werkzeug.security import generate_password_hash, check_password_hash
 from functools import wraps
 from assistingFunctions import *
 from flask_socketio import SocketIO, emit
@@ -36,11 +37,14 @@ def index():
     if session["username"] == "" or session["username"] == None:
         session.clear()
         return redirect("/login")
-    print(session.items())
     return render_template("home.html")
 
 @app.route("/login", methods=["GET", "POST"])
 def login():
+    try:
+        session.pop("username")
+    except:
+        pass
     if request.method == "POST":
         username = request.form.get("username")
         if not username:
@@ -52,21 +56,21 @@ def login():
             flash("Please enter a password")
             print("blank password")
             return redirect("/login")
-        verification = verify_user(username, password)
-        if verification == db.SUCCESS:
-            flash("Welcome back " + username + "!")
-            session["username"] = username
-            usrInfo = db.get_user(session["username"])
-            lang = usrInfo[3]
-            langCode = db.find_lang(lang)
-            session["localLang"] = langCode[1]
-            return redirect("/")
-        elif verification == db.ERR_NOUSR:
+        user = db.get_user(username)
+        if user != db.ERR_NOUSR and user != []:
+            if check_password_hash(user[1], password) == True:
+                flash("Welcome back " + username + "!")
+                session["username"] = username
+                lang = user[3]
+                langCode = db.find_lang(lang)
+                session["localLang"] = langCode[1]
+                return redirect("/")
+            else:
+                flash("Password was incorrect")
+                return redirect("/login")
+        else:
             flash("Username " + username + " is invalid")
             print("Username " + username + " is invalid")
-            return redirect("/login")
-        else:
-            flash("Password was incorrect")
             return redirect("/login")
     else:
         return render_template("login.html")
@@ -112,7 +116,7 @@ def changePassword():
         password = request.form.get("password")
         confirm = request.form.get("confirmation")
         same = password == confirm
-        print(same)
+        password = generate_password_hash(password)
         if same == True:
             db.change_password(password, session["username"])
             flash("Changes saved!")
@@ -125,7 +129,10 @@ def changePassword():
 
 @app.route("/register", methods=["GET", "POST"])
 def register():
-    session.clear()
+    try:
+        session.pop("username")
+    except:
+        pass
     langs = db.load_lang()
     if request.method == "POST":
         username = request.form.get("username")
@@ -137,6 +144,10 @@ def register():
         if not password or not confirmPass:
             flash("Please enter password(s)")
             return redirect("/register")
+        if password != confirmPass:
+            flash("Please ensure your passwords match")
+            return redirect("/register")
+        passHash = generate_password_hash(password)
         email = request.form.get("email")
         prefs = request.form.get("myTags")
         lang = request.form.get("language")
@@ -144,7 +155,7 @@ def register():
             if  lang == i[1]:
                 lang = i[0]
                 break
-        db.add_user(username, password, prefs, lang, email)
+        db.add_user(username, passHash, prefs, lang, email)
         # Add user to the db
         session["username"] = username
         langCode = db.find_lang(lang)
@@ -164,7 +175,7 @@ def match():
         # DB search to find the language of the person queried.
         target = db.get_user(target)
         session['endUser'] = target[0]
-        session['endLang'] = target[3]
+        session['endLang'] = db.find_lang(target[3])[1]
         return redirect("/chat")
     else:
         # DB search for all online people with similar interests to user.
@@ -198,6 +209,7 @@ def on_client_connect():
 @sio.on('msg_sent')
 def on_msg_sent(json):
     txt = json['msg_txt']
+    txt = translateThis(txt, session['endLang'], session['localLang'])
     sio.emit('msg_from_serv', {'text': txt})
 
 @sio.on('disconnect')

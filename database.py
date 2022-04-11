@@ -1,4 +1,5 @@
 from ast import Pass
+from asyncio import create_subprocess_shell
 from collections import namedtuple
 import sqlite3
 from sys import prefix
@@ -84,6 +85,7 @@ def add_user(Name, Pass, Pref, Langid, Email):
         cursor.close()
         return "user added"
     else:
+        cursor.close()
         return "user already exists"
 
 def removeUser(name):
@@ -170,17 +172,26 @@ def findCommonUsers(interests):
     for i in pref:
         field = "%" + i + "%"
         cursor.execute("""
-            SELECT * FROM US WHERE PREFERENCES LIKE (?);
+            SELECT NAME, LANGUAGEID FROM US WHERE PREFERENCES LIKE (?);
         """, [field])
-        datab.commit
+        datab.commit()
+        # print(cursor.fetchall())
+        # Change to find 10 results vvvvv
+        num = 0
+        sql = []
         for row in cursor:
+            temp = [row[0], row[1]]
+            sql.append(temp)
+        num = 10 if len(sql) > 10 else len(sql)
+        for j in range(num):
+            row = sql[j]
             found = False
             for record in users:
                 if len(users) > 0:
                     if row[0] in record:
                         found = True
             if found == False:
-                users.append([row[0], i, row[3]])
+                users.append([row[0], i, row[1]])
     cursor.close()
     # returns the users matched, how they were matched and their preferred language
     return users
@@ -192,8 +203,12 @@ def get_user(name):
     """, [name])
     # All fields in the record can be returned as they are, with the exception of prefernces.
     # The data within this attribute should be treated like a mini csv.
+    newusr = []
     for row in cursor:
-        newusr = [row[0], row[1], row[2], row[3], row[4]]
+        try:
+            newusr = [row[0], row[1], row[2], row[3], row[4]]
+        except:
+            return ERR_NOUSR
     cursor.close()
     return newusr
 
@@ -282,7 +297,7 @@ def verify_user(name, password):
         else:
             cursor.close()
             return ERR_WRONGPASS
-    
+        
         
         
 

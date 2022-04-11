@@ -1,6 +1,7 @@
 from database import recallDB
 import database as db
 import sqlite3
+from werkzeug.security import generate_password_hash, check_password_hash
 
 # Initialisation and table creation
 
@@ -32,4 +33,4 @@ for i in langs:
 langu = db.load_lang()
 # print(langu)
 print(db.recallDB())
-print(db.find_lang(31))
+# print(db.findCommonUsers('guitars, metal, music, games, computers, food, airsoft'))
