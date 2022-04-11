@@ -157,7 +157,7 @@ def match():
         return redirect("/chat")
     else:
         # DB search for all online people with similar interests to user.
-        people = [["danishboi", "metal,games"]]
+        people = [["danishboi", "metal,games", "English"]]
         return render_template("matches.html", people=people )
 
 @app.route("/logout", methods=["GET"])

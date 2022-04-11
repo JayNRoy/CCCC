@@ -30,5 +30,6 @@ for i in langs:
     db.add_lang(i[0], i[1]) """
 
 langu = db.load_lang()
+# print(langu)
 print(db.recallDB())
-print(db.findCommonUsers("games,destiny2"))
+# print(db.find_lang(31))

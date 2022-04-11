@@ -19,12 +19,14 @@
             <tr>
                 <th>Username</th>
                 <th>Common Interests</th>
+                <th>Prefered Language</th>
                 <th>Select User</th>
             </tr>
             {% for acc in people %}
                 <tr>
                     <td>{{ acc[0] }}</td>
                     <td>{{ acc[1] }}</td>
+                    <td>{{ acc[2] }}</td>
                     <td><input type="radio" id="{{ acc[0] }}" name="person" value="{{ acc[0] }}"></td>
                 </tr>
             {% endfor %}

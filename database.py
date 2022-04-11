@@ -130,6 +130,19 @@ def add_lang(name, code):
     datab.commit()
     cursor.close()
 
+def find_lang(langCode):
+    # finds a language from its language code
+    cursor = openData()
+    res = ""
+    cursor.execute("""
+        SELECT NAME, LANGCODE FROM LANG WHERE LANGUAGEID = (?);
+    """, [str(langCode)])
+    datab.commit()
+    for row in cursor:
+        res = [row[0], row[1]]
+    cursor.close()
+    return res
+
 def load_lang():
     """A function to load all supported languages to allow them to be chosen by preference by the user."""
     cursor = openData()
@@ -161,9 +174,9 @@ def findCommonUsers(interests):
                     if row[0] in record:
                         found = True
             if found == False:
-                users.append([row[0], i])
+                users.append([row[0], i, row[3]])
     cursor.close()
-    # returns the users matched and how they were matched
+    # returns the users matched, how they were matched and their preferred language
     return users
 
 def get_user(name):
@@ -244,7 +257,6 @@ def verify_user(name, password):
     #print(name)
     r=cursor.fetchall()
     for row in r:
-        print(row)
         # if the name exists, check the password
         exist_name = row
     if exist_name == "":
