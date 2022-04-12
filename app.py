@@ -143,13 +143,20 @@ def logout():
 @sio.on('join_chat')
 def on_client_connect(data):
     join_room(data["roomName"])
+    session["room"] = data["roomName"]
     print("client connected")
-    sio.emit("online_announcement", data, room = data["roomName"])
+    sio.emit("online_announcement", data, room=data["roomName"])
+
+@sio.on('leave_room')
+def on_leave_room(data):
+    print("Someone is leaving a room!")
+    leave_room(session.get("roomName", None))
+    sio.emit("left_room", {"username" : session.get("username", None)}, room = session.get("roomName", None))
     
 @sio.on('msg_sent')
-def on_msg_sent(json):
-    txt = json['msg_txt']
-    sio.emit('msg_from_serv', {'text': txt})
+def on_msg_sent(data):
+    #txt = json['msg_txt']
+    sio.emit('msg_from_serv', data, room = session.get("roomName", None))
 
 if __name__ == "__main__":
     #app.run(port=5000)

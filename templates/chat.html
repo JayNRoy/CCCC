@@ -23,8 +23,7 @@
     </form> -->
     <div action="/sendMessage" method="post">
         <div>
-            <textarea style="resize:none" id="newMessage" name="newMessage" rows="4" cols="50" autofocus placeholder="Enter your message here...">
-            </textarea>
+            <textarea style="resize:none" id="newMessage" name="newMessage" rows="4" cols="50" autofocus placeholder="Enter your message here..."></textarea>
         </div>
         <button class="btn btn-success" type="submit" id="btn-msg">Send</button>
     </div>
@@ -41,18 +40,21 @@
 
         let roomArray = [chatRecipient, currentUsername].sort();
 
-        let room = `${roomArray[0]}&&${roomArray[1]}`
-        console.log(`the room name is ${room}`)
-        socket.emit('join_chat', {"roomName" : room, "username" : currentUsername})
+        let room = `${roomArray[0]}&&${roomArray[1]}`;
+        room = "1"
+        console.log(`the room name is ${room}`);
+        socket.emit('join_chat', {"roomName" : room, "username" : currentUsername});
     });
 
     socket.on("online_announcement", function(data) {
-        alert(`The user ${data["username"]} is ONLINE`)
+        if (data["username"] != "{{ username }}"){
+            alert(`The user ${data["username"]} is ONLINE`);
+        }
     })
 
-    socket.on('msg_from_serv', function (json) {
+    socket.on('msg_from_serv', function (data) {
         var chatbox = document.getElementById("currentConvo");
-        chatbox.value += json.text + "\n"
+        chatbox.value += `${data["username"]}: ${data["msg_txt"]}\n`
     })
 
     var btn = document.getElementById("btn-msg");
@@ -60,7 +62,16 @@
         console.log("button clicked")
         var msg_txt = document.getElementById("newMessage").value
         document.getElementById("newMessage").value = ""
-        socket.emit('msg_sent', {"msg_txt" : msg_txt})
+        socket.emit('msg_sent', {"msg_txt" : msg_txt, "username" : "{{ username }}"})
     })
+
+    window.onbeforeunload = function () {
+        socket.emit("leave_room", {})
+    };
+
+    socket.on("left_room", function (data) {
+        alert(`${data["username"]} has left the room and is now OFFLINE`)
+    })
+
     </script>
 {% endblock %}
