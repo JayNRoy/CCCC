@@ -7,13 +7,7 @@
 {% block main %}
 <h2>Log In</h2>
 <div>
-    {% if get_flashed_messages() != None %}
-        {% for message in get_flashed_messages() %}
-            <div class="alert alert-success" role="alert">
-            	{{ message }}
-            </div>
-        {% endfor %}
-	{% endif %}
+    
 </div>
 <div>
 <form action="/login" method="post">
