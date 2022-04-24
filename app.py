@@ -4,6 +4,8 @@ Server-side functionality
 
 # our code
 from webbrowser import get
+
+from numpy import isin
 import database as db
 from database import verify_user, errmsg_from_code
 import translation as tl
@@ -17,7 +19,7 @@ from functools import wraps
 from assistingFunctions import *
 from flask_socketio import SocketIO, join_room, leave_room, emit
 
-# db.create_tables()
+#db.create_tables()
 
 # add stock users
 # db.add_user("jack wright", "pass", "none", 0, "jackwright@gmail.com", cursor)
@@ -171,27 +173,21 @@ def register():
 def match():
     if request.method == "POST":
         target = request.form.get("person")
-        # DB search to find the language of the person queried.
-        target = db.get_user(target)
+        print(f"They, that person being {session['username'].upper()}, wish to speak to '{target}' (the form returned the type {type(target)}")
+
+        """target = db.get_user(target)
         session['endUser'] = target[0]
-        session['endLang'] = db.find_lang(target[3])[1]
-        return redirect("/chat")
+        session['endLang'] = db.find_lang(target[3])[1]"""
+
+        recipientDetails = db.safe_get_user(target)
+
+        return render_template("chat.html", username = session.get("username", None), recipient = recipientDetails)
     else:
         # DB search for all online people with similar interests to user.
         userTags = db.get_user(session['username'])[2]
-        possible = db.findCommonUsers(userTags)
-        self = -1
-        for i in possible:
-            if i[0] == session['username']:
-                self = possible.index(i)
-            if i[1][0] == " ":
-                i[1] = i[1][1:]
-            i[2] = db.find_lang(i[2])[0]
-            i[1] = i[1].capitalize()
-        if self >= 0:
-            possible.remove(possible[self])
-        people = possible
-        return render_template("matches.html", people=people )
+        possible = db.find_common_users(userTags, session["username"])
+
+        return render_template("matches.html", people=possible )
 
 @app.route("/logout", methods=["GET"])
 @login_required
@@ -204,20 +200,29 @@ def logout():
 @sio.on('join_chat')
 def on_client_connect(data):
     join_room(data["roomName"])
-    session["room"] = data["roomName"]
+    session["roomName"] = data["roomName"]
     print("client connected")
     sio.emit("online_announcement", data, room=data["roomName"])
 
-@sio.on('leave_room')
+@sio.on('on_leave_room')
 def on_leave_room(data):
     print("Someone is leaving a room!")
-    leave_room(session.get("roomName", None))
-    sio.emit("left_room", {"username" : session.get("username", None)}, room = session.get("roomName", None))
-    
+    oldRoom = data["roomName"]
+    currentUsername = data["username"]
+    leave_room(oldRoom)
+    sio.emit("left_room", {"username" : currentUsername}, room = oldRoom)
+
 @sio.on('msg_sent')
 def on_msg_sent(data):
-    #txt = json['msg_txt']
+    data["message"] = data["message"].strip()
+    db.add_message(data["message"], data["sender"], data["recipient"], data["roomName"])
     sio.emit('msg_from_serv', data, room = session.get("roomName", None))
+
+@sio.on('get_prev_messages')
+def get_prev_messages():
+    messages = db.get_messages(session["roomName"])
+    print("SOMEONE IS GETTING PREVIOUS MESSAGES")
+    sio.emit('got_messages', messages)
 
 """    
 def on_msg_sent(json):
