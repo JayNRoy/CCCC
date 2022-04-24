@@ -1,8 +1,11 @@
 from ast import Pass
 from asyncio import create_subprocess_shell
 from collections import namedtuple
+from datetime import datetime
 import sqlite3
 from sys import prefix
+
+from colorama import Cursor
 
 datab = sqlite3.connect("database.db", check_same_thread=False)
 def openData():
@@ -12,6 +15,18 @@ def openData():
 
 def create_tables():
     cursor = openData()
+
+    cursor.execute("""
+    CREATE TABLE MESSAGES
+            (MESSAGEID INTEGER PRIMARY KEY AUTOINCREMENT,
+            MESSAGESTRING TEXT,
+            SENDER TEXT,
+            RECIPIENT TEXT,
+            DATE TEXT,
+            ROOMNAME TEXT);
+        """)
+    datab.commit()
+
     try:
         cursor.execute("""
     CREATE TABLE IF NOT EXISTS US
@@ -45,6 +60,8 @@ def create_tables():
         return True
     except:
         return False
+
+#create_tables()
 
 def recallDB():
     cursor = openData()
@@ -116,13 +133,27 @@ def updateUser(data, name):
 
 #add_user(234, "Olivia", "olivia", "45456", "@olivia.com")   
 
-def add_message(user1, user2, text):
+def add_message(message, sender, recipient, roomName):
     cursor = openData()
     cursor.execute("""
-    INSERT INTO M (SENDER, RECEIVER, MESSAGE) VALUES(?, ?, ?)
-    """, [user1, user2, text])
+    INSERT INTO MESSAGES (MESSAGESTRING, SENDER, RECIPIENT, DATE, ROOMNAME) VALUES(?, ?, ?, ?, ?)
+    """, [message, sender, recipient, datetime.utcnow(), roomName])
     datab.commit()
     cursor.close()
+
+def get_messages(roomName):
+    cursor = openData()
+    cursor.execute("""
+    SELECT MESSAGESTRING, SENDER, RECIPIENT, DATE FROM MESSAGES WHERE ROOMNAME = (?) ORDER BY DATE
+    """, [roomName])
+    datab.commit()
+
+    messages = []
+
+    for row in cursor:
+        messages.append(row)
+
+    return messages
 
 def add_lang(name, code):
     cursor = openData()
@@ -164,37 +195,39 @@ def load_lang():
     cursor.close()
     return res
 
-def findCommonUsers(interests):
-    # interests is a string of words seperated by commas
+def find_common_users(interests, currentUser):
     cursor = openData()
-    users = []
-    pref = interests.split(",")
-    for i in pref:
-        field = "%" + i + "%"
-        cursor.execute("""
-            SELECT NAME, LANGUAGEID FROM US WHERE PREFERENCES LIKE (?);
-        """, [field])
-        datab.commit()
-        # print(cursor.fetchall())
-        # Change to find 10 results vvvvv
-        num = 0
-        sql = []
-        for row in cursor:
-            temp = [row[0], row[1]]
-            sql.append(temp)
-        num = 10 if len(sql) > 10 else len(sql)
-        for j in range(num):
-            row = sql[j]
-            found = False
-            for record in users:
-                if len(users) > 0:
-                    if row[0] in record:
-                        found = True
-            if found == False:
-                users.append([row[0], i, row[1]])
-    cursor.close()
-    # returns the users matched, how they were matched and their preferred language
-    return users
+    cursor.execute("""
+    SELECT NAME, PREFERENCES, LANGUAGEID FROM US WHERE NAME != ?
+    """, [currentUser])
+    datab.commit()
+
+    userPrefs = set(interests.split(","))
+    possibleFriendList = []
+
+    for row in cursor:
+        arrayPrefs = row[1].split(",")
+        strangerPrefs = set(arrayPrefs)
+        commonality = userPrefs.intersection(strangerPrefs)
+
+        if commonality:
+            if len(possibleFriendList) == 0:
+                possibleFriendList.append([row[0], ", ".join(list(commonality)), find_lang(row[2])[0]])
+            else:
+                placed = False
+                for i in range(0, len(possibleFriendList)):
+                    if not placed:
+                        if len(commonality) >= len(possibleFriendList[i][1]):
+                            possibleFriendList.insert(i, [row[0], ", ".join(list(commonality)), find_lang(row[2])[0]])
+                            placed = True
+                
+                if not placed:
+                    possibleFriendList.append([row[0], ", ".join(list(commonality)), find_lang(row[2])[0]])
+
+    return possibleFriendList
+
+
+
 
 def get_user(name):
     cursor = openData()
@@ -212,6 +245,22 @@ def get_user(name):
     cursor.close()
     return newusr
 
+def safe_get_user(name): 
+    #A version of get_user that doesn't return confidential information
+    cursor = openData()
+    cursor.execute("""
+    SELECT NAME, PREFERENCES, LANGUAGEID FROM US WHERE NAME = ?
+    """, [name])
+
+    for row in cursor:
+        details = {
+            "username" : row[0],
+            "preferences" : row[1],
+            "language" : find_lang(row[2])[0]
+        }
+
+    return details
+    
 def change_password(newPassword, username):
     username = get_user(username)[0]
     cursor = openData()
@@ -223,19 +272,20 @@ def change_password(newPassword, username):
     datab.commit()
     cursor.close()
 
+"""
 def get_message(user1, user2):
     cursor = openData()
-    cursor.execute(""" 
+    cursor.execute(/"/"/" 
     SELECT NUMBER FROM M where (SENDER,RECEIVER) = (?, ?) 
-    """, [user1, user2])
+    /"/"/", [user1, user2])
     result = []
     
     for row in cursor:
         result.append(row)
 
-    cursor.execute(""" 
+    cursor.execute(/"/"/" 
     SELECT NUMBER FROM M where (RECEIVER, SENDER) = (?, ?) 
-    """, [user1, user2])
+    /"/"/", [user1, user2])
     for row in cursor:
         result.append(row)
     res=[]
@@ -247,16 +297,16 @@ def get_message(user1, user2):
     conversation = []
 
     for num in res:
-        cursor.execute(""" 
+        cursor.execute(/"/"/" 
         SELECT SENDER, RECEIVER, MESSAGE FROM M where (NUMBER) = (?) 
-        """, [num])
+        /"/"/", [num])
         
         for row in cursor:
            conversation.append(row)
 
     print(conversation)
     cursor.close()
-
+"""
 
 
 SUCCESS, ERR_NOUSR, ERR_WRONGPASS = 0, 1, 2
