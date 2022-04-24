@@ -7,7 +7,7 @@
 {% block main %}
     <div class="chatbox">
         <br>
-        Your conversation with {{ recipient }}:
+        Your conversation with {{ recipient["username"] }}:
         <br>
         <textarea id="currentConvo" name="currentConvo" cols="100" rows="25" readonly></textarea>
         </textarea>
@@ -32,16 +32,21 @@
     server_url = "http://127.0.0.1:5000/"
     
     const socket = io.connect(server_url);
+    let room = ""
+    startup()
+
+    function startup () {
+        socket.emit('get_prev_messages')
+    }
 
     socket.on("connect", function () {
         console.log("it has started the connection sequence")
-        let chatRecipient = "{{ recipient }}";
+        let chatRecipient = "{{ recipient['username'] }}";
         let currentUsername = "{{ username }}";
 
         let roomArray = [chatRecipient, currentUsername].sort();
 
-        let room = `${roomArray[0]}&&${roomArray[1]}`;
-        room = "1"
+        room = `${roomArray[0]}&&${roomArray[1]}`;
         console.log(`the room name is ${room}`);
         socket.emit('join_chat', {"roomName" : room, "username" : currentUsername});
     });
@@ -54,19 +59,30 @@
 
     socket.on('msg_from_serv', function (data) {
         var chatbox = document.getElementById("currentConvo");
-        chatbox.value += `${data["username"]}: ${data["msg_txt"]}\n`
+        chatbox.value += `${data["sender"]}: ${data["message"]}\n`
+    })
+
+    socket.on('got_messages', function (message) {
+        var chatbox = document.getElementById("currentConvo");
+        for (var i = 0; i < message.length; i++) {
+            chatbox.value += `${data["sender"]}: ${data["message"]}\n`
+        }
     })
 
     var btn = document.getElementById("btn-msg");
     btn.addEventListener("click", function() {
         console.log("button clicked")
-        var msg_txt = document.getElementById("newMessage").value
+        var message = document.getElementById("newMessage").value
         document.getElementById("newMessage").value = ""
-        socket.emit('msg_sent', {"msg_txt" : msg_txt, "username" : "{{ username }}"})
+        if (room != ""){
+            socket.emit('msg_sent', {"message" : message, "sender" : "{{ username }}", "recipient" : "{{ recipient['username'] }}", "roomName" : room})
+        } else {
+            alert("ERROR connecting to the room, please refresh the page")
+        }
     })
 
     window.onbeforeunload = function () {
-        socket.emit("leave_room", {})
+        socket.emit('on_leave_room', {"username" : "{{ username }}", "roomName" : room})
     };
 
     socket.on("left_room", function (data) {
