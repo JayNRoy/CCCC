@@ -34,20 +34,26 @@
             		</div>
         	</nav>
 		<!-- Flashed messages -->
-		<div>
-			<h1>CCCC: Connecting Countries via Continental Chat</h1>
-			<div>
-            	{% for message in get_flashed_messages() %}
-            		<div class="alert alert-success" role="alert">
-            	 		{{ message }}
-            		</div>
-        		{% endfor %}
+		<div class="container">
+			<div class="row justify-content-center">
+				<div class="col-8">
+					<h1 style="margin-bottom: 3%; margin-top: 3%;">CCCC: Connecting Countries via Continental Chat</h1>
+				</div>
+				<div class="col-12">
+					<div>
+						{% for message in get_flashed_messages() %}
+							<div class="alert alert-success" role="alert">
+								{{ message }}
+							</div>
+						{% endfor %}
+					</div>
+					<!-- Main content for any page inheriting this page template. -->
+					<main>
+						{% block main%}{% endblock %}
+					</main>
+				</div>
 			</div>
-        </div>
-		<!-- Main content for any page inheriting this page template. -->
-		<main>
-			{% block main%}{% endblock %}
-		</main>
+		</div>
 		<br>
 		<footer style="font-size:small; color:#777; text-align: center">
 			<p>Created by Samuel Leung, Jack Wright, Olivia Stubbs, Dravin Gupta, Jeremy Roy, Micheal Osei-George. For DurHack 2022.</p>

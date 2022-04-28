@@ -129,9 +129,7 @@ def updateUser(data, name):
             WHERE NAME = (?);
         """, [data[1], name])
     datab.commit()
-    cursor.close()
-
-#add_user(234, "Olivia", "olivia", "45456", "@olivia.com")   
+    cursor.close() 
 
 def add_message(message, sender, recipient, roomName):
     cursor = openData()
@@ -151,9 +149,54 @@ def get_messages(roomName):
     messages = []
 
     for row in cursor:
-        messages.append(row)
+        messages.append({
+            "message" : row[0],
+            "sender" : row[1],
+            "recipient" : row[2],
+            "date" : row[3][:16]
+        })
 
     return messages
+
+def find_past_conversations(username):
+    cursor = openData()
+    cursor.execute("""
+    SELECT DISTINCT SENDER, RECIPIENT FROM MESSAGES WHERE SENDER = (?) OR RECIPIENT = (?)
+    """, [username, username]
+    )
+    datab.commit()
+
+    conversations = set()
+    conversationDetails = []
+
+    for row in cursor:
+        conversations.add(row[0] if row[1] == username else row[1])
+
+    cursor.execute("""
+    SELECT PREFERENCES FROM US WHERE NAME = (?)
+    """, [username])
+    datab.commit()
+
+    for row in cursor:
+        userPreferences = set(row[0].split(","))
+
+    for person in conversations:
+        cursor.execute("""
+        SELECT PREFERENCES, LANGUAGEID FROM US WHERE NAME = (?)
+        """, [person])
+        datab.commit()
+
+        for row in cursor:
+            friendPreferences = set(row[0].split(","))
+            commonPreferences = userPreferences.intersection(friendPreferences)
+
+            conversationDetails.append({
+                "username" : person,
+                "commonPreferences" : ", ".join(commonPreferences),
+                "language" : find_lang(row[1])[0]
+            })
+
+    return conversationDetails
 
 def add_lang(name, code):
     cursor = openData()
@@ -271,43 +314,6 @@ def change_password(newPassword, username):
     """, [newPassword, username])
     datab.commit()
     cursor.close()
-
-"""
-def get_message(user1, user2):
-    cursor = openData()
-    cursor.execute(/"/"/" 
-    SELECT NUMBER FROM M where (SENDER,RECEIVER) = (?, ?) 
-    /"/"/", [user1, user2])
-    result = []
-    
-    for row in cursor:
-        result.append(row)
-
-    cursor.execute(/"/"/" 
-    SELECT NUMBER FROM M where (RECEIVER, SENDER) = (?, ?) 
-    /"/"/", [user1, user2])
-    for row in cursor:
-        result.append(row)
-    res=[]
-    for i in result:
-        res.append(i[0])
-
-    res.sort()
-    print(res,"result")
-    conversation = []
-
-    for num in res:
-        cursor.execute(/"/"/" 
-        SELECT SENDER, RECEIVER, MESSAGE FROM M where (NUMBER) = (?) 
-        /"/"/", [num])
-        
-        for row in cursor:
-           conversation.append(row)
-
-    print(conversation)
-    cursor.close()
-"""
-
 
 SUCCESS, ERR_NOUSR, ERR_WRONGPASS = 0, 1, 2
 def errmsg_from_code(code):

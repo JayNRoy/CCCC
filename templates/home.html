@@ -5,15 +5,38 @@
 {% endblock %}
 
 {% block main %}
-<br>
-<br>
-<!--div style="size: 500px;">
-    <a href="/chat"><button type="button" class="btn btn-success">Find a New Chat</button></a>
-</div-->
-<div class = "col-md">
-    <h2>Here are your currect continental chats:</h2>
+
+{% if pastConversations %}
+    <h2>Here are your current continental chats:</h2>
+
+    <form action="/match" method="post" name="personSelect">
+        <label for="person">User select:</label>
+        <table class="table">
+            <thead>
+                <tr>
+                    <th>Username</th>
+                    <th>Common Interests</th>
+                    <th>Prefered Language</th>
+                    <th>Select User</th>
+                </tr>
+                {% for conversation in pastConversations %}
+                    <tr>
+                        <td>{{ conversation["username"] }}</td>
+                        <td>{{ conversation["commonPreferences"] }}</td>
+                        <td>{{ conversation["language"] }}</td>
+                        <td><input type="radio" id="{{ conversation['username'] }}" name="person" value="{{ conversation['username'] }}" required></td>
+                    </tr>
+                {% endfor %}
+            </thead>
+        </table>
+        <button class="btn btn-primary" type="submit">Chat!</button>
+        </form>
+
+        <br><br>
+        <h2>But why not try talking to someone new!</h2>
+{% else %}
+    <h2>Looks like you haven't messsaged anyone yet, try speaking to someone new!</h2>
+{% endif %}
+
     <a href="/match"><button type="button" class="btn btn-success">Talk to Someone New!</button></a>
-</div>
-<br>
-<br>
 {% endblock %}

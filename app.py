@@ -3,9 +3,6 @@ Server-side functionality
 """
 
 # our code
-from webbrowser import get
-
-from numpy import isin
 import database as db
 from database import verify_user, errmsg_from_code
 import translation as tl
@@ -18,12 +15,9 @@ from werkzeug.security import generate_password_hash, check_password_hash
 from functools import wraps
 from assistingFunctions import *
 from flask_socketio import SocketIO, join_room, leave_room, emit
-
-#db.create_tables()
-
-# add stock users
-# db.add_user("jack wright", "pass", "none", 0, "jackwright@gmail.com", cursor)
-# db.add_user("jack wrong", "pass", "none", 0, "jackwrong@gmail.com", cursor)
+from numpy import isin
+from datetime import datetime
+from webbrowser import get
 
 app = Flask(__name__)
 sio = SocketIO(app)
@@ -38,7 +32,10 @@ def index():
     if session["username"] == "" or session["username"] == None:
         session.clear()
         return redirect("/login")
-    return render_template("home.html")
+
+    pastConversations = db.find_past_conversations(session["username"])
+
+    return render_template("home.html", pastConversations = pastConversations)
 
 @app.route("/login", methods=["GET", "POST"])
 def login():
@@ -123,7 +120,7 @@ def changePassword():
             flash("Changes saved!")
             return redirect("/")
         else:
-            flash("Pleas ensure the password match.")
+            flash("Please ensure the password match.")
             return redirect("/changePassword")
     else:
         return render_template("changePassword.html")
@@ -173,12 +170,6 @@ def register():
 def match():
     if request.method == "POST":
         target = request.form.get("person")
-        print(f"They, that person being {session['username'].upper()}, wish to speak to '{target}' (the form returned the type {type(target)}")
-
-        """target = db.get_user(target)
-        session['endUser'] = target[0]
-        session['endLang'] = db.find_lang(target[3])[1]"""
-
         recipientDetails = db.safe_get_user(target)
 
         return render_template("chat.html", username = session.get("username", None), recipient = recipientDetails)
@@ -215,6 +206,7 @@ def on_leave_room(data):
 @sio.on('msg_sent')
 def on_msg_sent(data):
     data["message"] = data["message"].strip()
+    data["time"] = str(datetime.utcnow())[:16]
     db.add_message(data["message"], data["sender"], data["recipient"], data["roomName"])
     sio.emit('msg_from_serv', data, room = session.get("roomName", None))
 
@@ -224,19 +216,11 @@ def get_prev_messages():
     print("SOMEONE IS GETTING PREVIOUS MESSAGES")
     sio.emit('got_messages', messages)
 
-"""    
-def on_msg_sent(json):
-    txt = json['msg_txt']
-    txt = translateThis(txt, session['endLang'], session['localLang'])
-    sio.emit('msg_from_serv', {'text': txt})
-"""
-
 @sio.on('disconnect')
 def disconnectUser():
     session.clear()
     return redirect("/login")
 
 if __name__ == "__main__":
-    #app.run(port=5000)
     session.clear()
     sio.run(app)

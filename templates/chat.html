@@ -1,12 +1,11 @@
 {% extends "layout.html" %}
 
 {% block title %}
-    Chatting
+    Chatting with {{ recipient["username"] }}
 {% endblock %}
 
 {% block main %}
     <div class="chatbox">
-        <br>
         Your conversation with {{ recipient["username"] }}:
         <br>
         <textarea id="currentConvo" name="currentConvo" cols="100" rows="25" readonly></textarea>
@@ -31,16 +30,11 @@
     <script>
     server_url = "http://127.0.0.1:5000/"
     
+    let initialised = false
     const socket = io.connect(server_url);
-    let room = ""
-    startup()
-
-    function startup () {
-        socket.emit('get_prev_messages')
-    }
+    let room = "";
 
     socket.on("connect", function () {
-        console.log("it has started the connection sequence")
         let chatRecipient = "{{ recipient['username'] }}";
         let currentUsername = "{{ username }}";
 
@@ -49,6 +43,11 @@
         room = `${roomArray[0]}&&${roomArray[1]}`;
         console.log(`the room name is ${room}`);
         socket.emit('join_chat', {"roomName" : room, "username" : currentUsername});
+
+        if (!initialised){
+            socket.emit('get_prev_messages');
+            initialised = true;
+        }
     });
 
     socket.on("online_announcement", function(data) {
@@ -59,13 +58,13 @@
 
     socket.on('msg_from_serv', function (data) {
         var chatbox = document.getElementById("currentConvo");
-        chatbox.value += `${data["sender"]}: ${data["message"]}\n`
+        chatbox.value += `${data["time"]} | ${data["sender"]}: ${data["message"]}\n`
     })
 
     socket.on('got_messages', function (message) {
         var chatbox = document.getElementById("currentConvo");
         for (var i = 0; i < message.length; i++) {
-            chatbox.value += `${data["sender"]}: ${data["message"]}\n`
+            chatbox.value += `${message[i]["date"]} | ${message[i]["sender"]}: ${message[i]["message"]}\n`
         }
     })
 
